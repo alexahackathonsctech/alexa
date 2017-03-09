@@ -51,13 +51,20 @@ for source in sourcesList:
 
 #TODO!! turn this from printing out the recyclables to saving them to a text file
 for recyclable in recycleData:
-	print(recyclable)
+	if recyclable == "":
+		recycleData.remove(recyclable)
+	else:
+		print(recyclable)
 
 print("\n\n now entering scary zone of unrecyclables \n\n")
 
 #TODO!! turn this from printing out the non-recyclables to saving them to a text file
 for nonrecyclable in nonrecycleData:
-	print(nonrecyclable)
+	if recyclable == "":
+		nonrecycleData.remove(nonrecyclable)
+	else:
+		print(nonrecyclable)
+
 
 
 
