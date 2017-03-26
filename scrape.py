@@ -1,8 +1,9 @@
-''' 
+'''
 
-this is the webscraping portion of our alexa hackathon project.
-this can be used as a module for the alexa interface, or the interface can be coded directly
-into this file.
+This is the webscraper portion of our alexa hackthon project.
+Much of this will eventually be converted from text based 
+questions into the alexa interface.
+
 
 '''
 
@@ -37,11 +38,11 @@ def neccInfo():
 
     return info
 
-def getCarStats():
+def getCarStats(USED):
 
     ## This is the information for the URL that required no special formatting.
     ## Eventually this will need to be replaced with questions / answers from Alexa
-    ## and the user. 
+    ## and the user.
 
     statsList = []
 
@@ -61,8 +62,11 @@ def getCarStats():
     if personal == 'y':
         statsList.append(PERSONALUSE)
 
-    certified = input('would you like the car to be a certified pre-owned? (y / n) ')
-    if certified == 'y':
+    if USED == 'used': ## For some reason if a car is new it has to be a certified pre-owned. This accounts for that
+        certified = input('would you like the car to be a certified pre-owned? (y / n) ')
+        if certified == 'y':
+            statsList.append(CERTIFIEDPREOWNED)
+    else:
         statsList.append(CERTIFIEDPREOWNED)
 
     return statsList
@@ -117,7 +121,7 @@ def findTitle(soup):
         title = titleClass.find('span', {'class': 'title'}).text
         titleList.append(title)
 
-    return colorList
+    return titleList
 
 def findEngineInfo(soup):
 
@@ -141,7 +145,7 @@ def getUrl():
     ## This gets formats the url with the users information
 
     info = neccInfo()
-    statsList = getCarStats()
+    statsList = getCarStats(info[0]) ## This passed whether or not the car is used. This is important for the formatting of the URL
     baseUrl = 'https://www.carfax.com/vehicles/{0}-{1}-{2}--{3}'.format(info[0], info[1], info[2], info[3])
     for stat in statsList:
         baseUrl += '/' + stat
@@ -203,7 +207,6 @@ engineList = findEngineInfo(soup)
 carList = generateCars(priceList,milesList,colorList,titleList,engineList)
 
 printCars(carList)
-
 
 
 
