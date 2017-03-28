@@ -46,6 +46,13 @@ def getCarStats(USED):
 
     statsList = []
 
+    if USED == 'used': ## For some reason if a car is new it has to be a certified pre-owned. This accounts for that
+        certified = input('would you like the car to be a certified pre-owned? (y / n) ')
+        if certified == 'y':
+            statsList.append(CERTIFIEDPREOWNED)
+    else:
+        statsList.append(CERTIFIEDPREOWNED)
+
     service = input('would you like to know the service records? (y / n) ')
     if service == 'y':
         statsList.append(SERVICEHISTORY)
@@ -62,16 +69,11 @@ def getCarStats(USED):
     if personal == 'y':
         statsList.append(PERSONALUSE)
 
-    if USED == 'used': ## For some reason if a car is new it has to be a certified pre-owned. This accounts for that
-        certified = input('would you like the car to be a certified pre-owned? (y / n) ')
-        if certified == 'y':
-            statsList.append(CERTIFIEDPREOWNED)
-    else:
-        statsList.append(CERTIFIEDPREOWNED)
+
 
     return statsList
 
-def findprices(baseUrl):
+def findprices(soup):
 
     ## Retrieves the listed price for the car
 
@@ -79,8 +81,12 @@ def findprices(baseUrl):
 
     for cardiv in soup.find_all('div', {'class':'other'}):
         priceclass = cardiv.find('div', {'class':'price-normal'})
-        price = priceclass.find('span', {'itemprop':'price'}).text
-        pricesList.append(price)
+        if priceclass == None:
+            price = "CALL FOR PRICE"
+        else:
+            price = priceclass.find('span', {'itemprop':'price'}).text
+
+        pricesList.append('$' + price)
 
     return pricesList
 
@@ -92,7 +98,11 @@ def findmiles(soup):
 
     for milediv in soup.find_all('div', {'class':'other'}):
         mileclass = milediv.find('p', {'class':'miles'})
-        milage = mileclass.find('strong').text
+        if mileclass == None:
+            milage = "MILAGE NOT LISTED"
+        else:
+            milage = mileclass.find('strong').text
+
         milesList.append(milage)
 
     return milesList
@@ -105,7 +115,11 @@ def findColor(soup):
 
     for colordiv in soup.find_all('div', {'class':'other'}):
         colorClass = colordiv.find('div', {'class':'special-features group2'})
-        color = colorClass.find('span', {'class': 'special-features--value'}).text
+        if colorClass == None:
+            color = "COLOR NOT LISTED"
+        else:
+            color = colorClass.find('span', {'class': 'special-features--value'}).text
+
         colorList.append(color)
 
     return colorList
@@ -118,7 +132,11 @@ def findTitle(soup):
 
     for titleDiv in soup.find_all('div', {'class':'basic-detail'}):
         titleClass = titleDiv.find('a', {'class':'j-singlepage'})
-        title = titleClass.find('span', {'class': 'title'}).text
+        if titleClass == None:
+            title = "TITLE NOT LISTED"
+        else:
+            title = titleClass.find('span', {'class': 'title'}).text
+
         titleList.append(title)
 
     return titleList
@@ -131,10 +149,13 @@ def findEngineInfo(soup):
 
     for engineDiv in soup.find_all('div', {'class':'other'}):
         engineClass = engineDiv.find('div', {'class':'special-features group2'})
-
-        detailList = engineClass.find_all('span', {'class': 'special-features--value'})
-        engine = detailList[1].text
-        transmission = detailList[2].text
+        if engineClass == None:
+            engine = "ENGINE TYPE NOT LISTED"
+            transmission = "TRANSMISSION TYPE NOT LISTED"
+        else:
+            detailList = engineClass.find_all('span', {'class': 'special-features--value'})
+            engine = detailList[1].text
+            transmission = detailList[2].text
         engineList.append([engine, transmission])
 
     return engineList
@@ -181,7 +202,7 @@ def printCars(carList):
     for car in carList:
         print('the exact title of the car is: {}'.format(car['title']))
         print('the exact milage on the car is: {} miles'.format(car['miles']))
-        print('the exact price on the car is: ${}'.format(car['price']))
+        print('the exact price on the car is: {}'.format(car['price']))
         print('the exact color of the car is: {}'.format(car['color']))
         print('the engine size of the car is: {}'.format(car['engineSize']))
         print('the transmission type of the car is: {}'.format(car['transmissionType']))
@@ -193,6 +214,8 @@ def printCars(carList):
 ## This ensures that the page only gets loaded once
 baseUrl = getUrl()
 
+## Debugging purposes only
+print('\n\n*************** ' + baseUrl + '****************\n\n')
 print('\nPlease wait while we search for cars that fit your description...\n')
 
 page = urllib.request.urlopen(baseUrl).read()
