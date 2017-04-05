@@ -85,8 +85,9 @@ def findprices(soup):
             price = "CALL FOR PRICE"
         else:
             price = priceclass.find('span', {'itemprop':'price'}).text
+            price = '$' + price
 
-        pricesList.append('$' + price)
+        pricesList.append(price)
 
     return pricesList
 
@@ -173,6 +174,31 @@ def getUrl():
 
     return baseUrl
 
+def validateUrl():
+    while True:
+        try:
+            baseUrl = getUrl()
+            #### debugging purposes only... uncomment to see raw url #### print('\n\n*************** ' + baseUrl + '****************\n\n')
+            print('\nPlease wait while we search for cars that fit your description...\n')
+
+            page = urllib.request.urlopen(baseUrl).read()
+            soup = bs.BeautifulSoup(page, 'lxml')
+
+        except urllib.error.HTTPError as err:
+            print('''
+
+            oh no! something went wrong!
+            let us ask you these questions again...
+            be very careful about entering correct data.
+
+
+            ''')
+        else:
+            break
+
+
+    return soup
+
 def generateCars(priceList,milesList,colorList,titleList,engineList):
 
     ## This just combines all of the lists of the information about the car into
@@ -212,14 +238,8 @@ def printCars(carList):
 
 
 ## This ensures that the page only gets loaded once
-baseUrl = getUrl()
 
-## Debugging purposes only
-print('\n\n*************** ' + baseUrl + '****************\n\n')
-print('\nPlease wait while we search for cars that fit your description...\n')
-
-page = urllib.request.urlopen(baseUrl).read()
-soup = bs.BeautifulSoup(page, 'lxml')
+soup = validateUrl()
 
 priceList = findprices(soup)
 milesList = findmiles(soup)
@@ -230,6 +250,5 @@ engineList = findEngineInfo(soup)
 carList = generateCars(priceList,milesList,colorList,titleList,engineList)
 
 printCars(carList)
-
 
 
