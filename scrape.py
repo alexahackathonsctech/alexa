@@ -237,8 +237,8 @@ def printCars(carList):
 
 
 
-## This ensures that the page only gets loaded once
 
+## This ensures that the page only gets loaded once and also validates the URL before pulling data
 soup = validateUrl()
 
 priceList = findprices(soup)
